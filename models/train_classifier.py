@@ -131,7 +131,7 @@ def main():
         #evaluate_model(model, X_test, y_test, category_names)
 
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
-        #save_model(model, model_filepath)
+        save_model(model, model_filepath)
 
         print('Trained model saved!')
 
