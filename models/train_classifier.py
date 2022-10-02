@@ -1,6 +1,6 @@
 import sys
 import pandas
-import numpy as np
+from sklearn.metrics import classification_report
 
 from sqlalchemy import create_engine
 
@@ -14,11 +14,13 @@ nltk.download('omw-1.4')
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 
+import pickle
+import joblib
 
 def load_data(database_filepath):
     """ Load data from SQL database into pandas dataframe
@@ -75,17 +77,16 @@ def build_model():
 
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier(class_weight="balanced")))
     ])
 
     parameters = {
-        'clf__estimator__n_estimators': [10, 20],
-        'clf__estimator__min_samples_split': [2, 4]
+        'clf__estimator__n_estimators': [10],
+        'clf__estimator__min_samples_split': [2],
     }
 
-    model = GridSearchCV(pipeline, param_grid=parameters, cv=3,
-                         scoring='recall_micro',
-                         return_train_score=True)
+    model = GridSearchCV(pipeline, param_grid=parameters,n_jobs=4, verbose=2, cv=3)
 
     return model
 
@@ -107,7 +108,8 @@ def save_model(model, model_filepath):
     :param model: trained model
     :param model_filepath: path for model to be saved
     """
-    pickle.dump(model.best_estimator_, open(model_filepath, 'wb'))
+    #pickle.dump(model, open(model_filepath, 'wb'))
+    joblib.dump(model, model_filepath, compress=3)
 
 
 def main():
@@ -123,13 +125,13 @@ def main():
         model = build_model()
 
         print('Training model...')
-        model.fit(X_train, y_train)
+        #model.fit(X_train, y_train)
 
         print('Evaluating model...')
-        evaluate_model(model, X_test, y_test, category_names)
+        #evaluate_model(model, X_test, y_test, category_names)
 
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
-        save_model(model, model_filepath)
+        #save_model(model, model_filepath)
 
         print('Trained model saved!')
 
