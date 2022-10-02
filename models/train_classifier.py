@@ -9,8 +9,7 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-nltk.download(['punkt', 'stopwords', 'wordnet'])
-nltk.download('omw-1.4')
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
@@ -19,8 +18,12 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 
-import pickle
+# import pickle
 import joblib
+
+nltk.download(['punkt', 'stopwords', 'wordnet'])
+nltk.download('omw-1.4')
+
 
 def load_data(database_filepath):
     """ Load data from SQL database into pandas dataframe
@@ -86,7 +89,7 @@ def build_model():
         'clf__estimator__min_samples_split': [2],
     }
 
-    model = GridSearchCV(pipeline, param_grid=parameters,n_jobs=4, verbose=2, cv=3)
+    model = GridSearchCV(pipeline, param_grid=parameters, n_jobs=4, verbose=2, cv=3)
 
     return model
 
@@ -95,7 +98,7 @@ def evaluate_model(model, X_test, y_test, category_names):
     """ View classification report based on  predictions from test data
     :param model: Trained model
     :param X_test: test data to predict on
-    :param Y_test: correct labels from test data
+    :param y_test: correct labels from test data
     :param category_names: names of categories to predict
     """
     y_pred = model.best_estimator_.predict(X_test)
@@ -108,7 +111,7 @@ def save_model(model, model_filepath):
     :param model: trained model
     :param model_filepath: path for model to be saved
     """
-    #pickle.dump(model, open(model_filepath, 'wb'))
+    # pickle.dump(model, open(model_filepath, 'wb'))
     joblib.dump(model, model_filepath, compress=3)
 
 
@@ -128,7 +131,7 @@ def main():
         #model.fit(X_train, y_train)
 
         print('Evaluating model...')
-        #evaluate_model(model, X_test, y_test, category_names)
+        # evaluate_model(model, X_test, y_test, category_names)
 
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
@@ -136,9 +139,9 @@ def main():
         print('Trained model saved!')
 
     else:
-        print('Please provide the filepath of the disaster messages database ' \
-              'as the first argument and the filepath of the pickle file to ' \
-              'save the model to as the second argument. \n\nExample: python ' \
+        print('Please provide the filepath of the disaster messages database ' 
+              'as the first argument and the filepath of the pickle file to ' 
+              'save the model to as the second argument. \n\nExample: python ' 
               'train_classifier.py ../data/DisasterResponse.db classifier.pkl')
 
 
