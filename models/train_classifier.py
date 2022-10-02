@@ -85,11 +85,13 @@ def build_model():
     ])
 
     parameters = {
-        'clf__estimator__n_estimators': [10],
-        'clf__estimator__min_samples_split': [2],
+        'vect__max_df': [1],
+        'tfidf__sublinear_tf': [True, False],
+        'tfidf__use_idf': (True, False),
+        'clf__estimator__n_estimators': [250],
+        'clf__estimator__min_samples_leaf': [4]
     }
-
-    model = GridSearchCV(pipeline, param_grid=parameters, n_jobs=4, verbose=2, cv=3)
+    model = GridSearchCV(pipeline, param_grid=parameters, verbose=True)
 
     return model
 
@@ -101,7 +103,7 @@ def evaluate_model(model, X_test, y_test, category_names):
     :param y_test: correct labels from test data
     :param category_names: names of categories to predict
     """
-    y_pred = model.best_estimator_.predict(X_test)
+    y_pred = model.predict(X_test)
 
     print(classification_report(y_test, y_pred, target_names=category_names))
 
@@ -111,8 +113,8 @@ def save_model(model, model_filepath):
     :param model: trained model
     :param model_filepath: path for model to be saved
     """
-    # pickle.dump(model, open(model_filepath, 'wb'))
-    joblib.dump(model, model_filepath, compress=3)
+    pickle.dump(model, open(model_filepath, 'wb'))
+    #joblib.dump(model, model_filepath, compress=3)
 
 
 def main():
@@ -128,10 +130,10 @@ def main():
         model = build_model()
 
         print('Training model...')
-        #model.fit(X_train, y_train)
+        model.fit(X_train, y_train)
 
         print('Evaluating model...')
-        # evaluate_model(model, X_test, y_test, category_names)
+        evaluate_model(model, X_test, y_test, category_names)
 
         print('Saving model...\n    MODEL: {}'.format(model_filepath))
         save_model(model, model_filepath)
