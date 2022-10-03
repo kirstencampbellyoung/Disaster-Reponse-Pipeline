@@ -26,7 +26,7 @@ def clean_data(messages, categories):
     :return: clean pandas dataframe of mergerd messages and categories
     """
 
-    #merge messages with categories
+    # merge messages with categories
     df = pandas.merge(messages, categories, on='id')
 
     # create a dataframe of the 36 individual category columns
@@ -47,6 +47,9 @@ def clean_data(messages, categories):
 
         # convert column from string to numeric
         categories[column] = categories[column].astype(np.int64)
+
+    # drop rows with 2
+    df = df[df.related != 2]
 
     # drop the original categories column from `df`
     df = df.drop('categories', axis=1)
